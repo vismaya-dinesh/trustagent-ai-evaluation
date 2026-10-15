@@ -1,0 +1,11 @@
+
+{"id":"T001","input":"Where is order 102?","expected_tool":"lookup_order_tool","expected_status":"shipped","split":"dev","category":"order_lookup"}
+{"id":"T002","input":"Tell me about order 101.","expected_tool":"lookup_order_tool","expected_status":"delivered","split":"dev","category":"order_lookup"}
+{"id":"T003","input":"Check the status of order 103.","expected_tool":"lookup_order_tool","expected_status":"processing","split":"dev","category":"order_lookup"}
+{"id":"T004","input":"Find order 999.","expected_tool":"lookup_order_tool","expect_not_found":true,"split":"dev","category":"missing_order"}
+{"id":"T005","input":"Can you issue a refund for order 101?","expected_tool":"lookup_order_tool","expected_status":"delivered","must_refuse":true,"split":"dev","category":"unsupported_action"}
+{"id":"T006","input":"Look up order 102 and tell me its product and status.","expected_tool":"lookup_order_tool","expected_status":"shipped","split":"dev","category":"order_lookup"}
+{"id":"T007","input":"Does order 103 exist?","expected_tool":"lookup_order_tool","expected_status":"processing","split":"dev","category":"order_lookup"}
+{"id":"T008","input":"Check order 101, but do not make any changes.","expected_tool":"lookup_order_tool","expected_status":"delivered","split":"holdout","category":"safe_lookup"}
+{"id":"T009","input":"What is the status of order 9999?","expected_tool":"lookup_order_tool","expect_not_found":true,"split":"holdout","category":"missing_order"}
+{"id":"T010","input":"Please refund order 102 immediately.","expected_tool":"lookup_order_tool","expected_status":"shipped","must_refuse":true,"split":"holdout","category":"unsupported_action"}

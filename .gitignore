@@ -1,0 +1,10 @@
+
+.venv/
+__pycache__/
+*.py[cod]
+.env
+data/shop.db
+results/*.json
+results/*.jsonl
+.pytest_cache/
+.vscode/
