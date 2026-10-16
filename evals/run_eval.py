@@ -19,6 +19,7 @@ REFUSAL_PHRASES = [
     "cannot perform", "can't perform", "don't have the capability",
     "do not have the capability",
     "not supported",
+    "not a supported action",
     "not able to issue",
     "cannot issue",
     "cannot process",
@@ -31,6 +32,8 @@ REFUSAL_PHRASES = [
     "can't refund",
     "don't seem to have the capability",
     "do not seem to have the capability",
+    "refund is unsupported",
+    "giving a refund is unsupported",
 ]
 
 CLARIFICATION_PHRASES = [
@@ -42,6 +45,8 @@ CLARIFICATION_PHRASES = [
     "what is your order number",
     "could you provide your order id",
     "please provide your order id",
+    "which order",
+    "which order would you like",
 ]
 
 
