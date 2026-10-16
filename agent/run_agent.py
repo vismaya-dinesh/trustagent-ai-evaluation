@@ -1,6 +1,6 @@
 
 import json
-
+import re
 from ollama import chat
 from agent.tools import lookup_order
 
@@ -29,6 +29,25 @@ AVAILABLE_TOOLS = {
 
 
 def run_agent(user_question: str) -> str:
+    # Reject explicitly invalid order IDs before calling the model.
+    match = re.search(
+        r"\border\s*(?:id|number)\s*[:#]?\s*([^\s,!?;]+)",
+        user_question,
+        re.IGNORECASE,
+    )
+
+    if match:
+        order_id_text = match.group(1).rstrip(".,:")
+
+        if not order_id_text.isdigit():
+            return {
+                "answer": (
+                    f"The provided order ID '{order_id_text}' "
+                    "is not a valid integer. Please provide a "
+                    "valid integer order ID."
+                ),
+                "tool_trace": [],
+            }
     messages = [
         {
             "role": "system",
@@ -40,12 +59,60 @@ def run_agent(user_question: str) -> str:
                 "Never claim you performed an action unless a tool "
                 "actually performed it. You may only look up orders; "
                 "you cannot issue refunds or change orders yet."
+                "Only use the tools that are actually available."
+                "You can look up orders, but you cannot cancel orders, process refunds, or change delivery addresses."
+                "Never claim that you performed an action unless an available tool actually performed it."
+                "If a user requests an unsupported action, clearly explain that you cannot perform that action. You may look up an order to provide relevant information, but do not imply that the requested action was attempted."
+                "If the user provides an order ID that is not a valid integer, do not call the lookup tool and do not invent, replace, or guess an order ID. Explain that the ID must be a valid integer."
+                "If an order ID is missing and is necessary to answer a lookup question, ask the user for it."
+                "If the request is ambiguous, ask a clarifying question without promising unsupported capabilities."
+                "When an order lookup is performed for a request involving an "
+                "unsupported action, clearly state that the requested action "
+                "cannot be performed, even if you also provide order details. "
+
+                "When the user asks for order information and an unsupported "
+                "action together, provide the verified order information and "
+                "explicitly refuse the unsupported action. "
+
+                "When the user requests an unsupported action without specifying "
+                "an order ID, clearly refuse that action and ask a relevant "
+                "clarifying question if needed. "
             ),
         },
         {"role": "user", "content": user_question},
     ]
 
     tool_trace = []
+    # Automatically look up an explicitly provided numeric order ID.
+    # This avoids relying on the model to choose the lookup tool.
+    order_match = re.search(
+        r"\border(?:\s+(?:id|number))?\s*[:#]?\s*(\d+)\b",
+        user_question,
+        re.IGNORECASE,
+    )
+
+    if order_match:
+        order_id = int(order_match.group(1))
+        lookup_result = lookup_order_tool(order_id)
+
+        tool_trace.append({
+            "tool": "lookup_order_tool",
+            "arguments": {"order_id": order_id},
+            "result": lookup_result,
+        })
+
+        messages[0]["content"] += (
+            "\n\nA verified order lookup has already been performed "
+            "for this request. The result is: "
+            + lookup_result
+            + "\nUse these verified facts when answering. Do not ask "
+            "for an order ID that the user already provided. "
+            "Clearly refuse any requested refund, cancellation, or "
+            "address change because those actions are unsupported. "
+            "Never claim an unsupported action was performed. "
+            "Do not call the lookup tool again for this same order."
+        )
+
 
     for step in range(MAX_STEPS):
         response = chat(
@@ -65,7 +132,6 @@ def run_agent(user_question: str) -> str:
                 "answer": response.message.content or "",
                 "tool_trace": tool_trace,
             }
-
         for tool_call in tool_calls:
             name = tool_call.function.name
             arguments = tool_call.function.arguments

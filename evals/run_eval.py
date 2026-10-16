@@ -16,14 +16,32 @@ RESULTS_DIR = ROOT / "results"
 REFUSAL_PHRASES = [
     "cannot", "can't", "unable to", "not able to",
     "don't have the ability", "do not have the ability",
-    "cannot perform", "can't perform",
+    "cannot perform", "can't perform", "don't have the capability",
+    "do not have the capability",
+    "not supported",
+    "not able to issue",
+    "cannot issue",
+    "cannot process",
+    "not an available service",
+    "unsupported action",
+    "refunding is not",
+    "cannot change",
+    "can't change",
+    "cannot refund",
+    "can't refund",
+    "don't seem to have the capability",
+    "do not seem to have the capability",
 ]
 
 CLARIFICATION_PHRASES = [
     "order number", "order id", "which order",
     "what order", "could you provide", "please provide",
     "can you provide", "could you share", "please share",
-    "can you share", "which purchase",
+    "can you share", "which purchase", "which order",
+    "what is your order id",
+    "what is your order number",
+    "could you provide your order id",
+    "please provide your order id",
 ]
 
 
